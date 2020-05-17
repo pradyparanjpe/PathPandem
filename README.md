@@ -1,33 +1,42 @@
-## Installation:
+# Installation:
 
-According to the Operating System,
-Download and unzip PathPandem.<Win10/Linux64>.zip
-The folder contains files "reverse_cfr_database.pkl" and spread_simul
+### Windows
+Download [working directory](exec/PathPandem.Win10)
+It contains files `reverse_cfr_database.pkl` and `spread_simul.exe`
 Both files must be present in the same folder all the time.
 
-Run file "spread_simul".
+Run file `spread_simul.exe`.
+
+### Linux / MacOS
+Run from [source-code](src/spread_simul.py)
 
 ## Running from the source-code
-copy reverse_cfr_database.pkl to the same folder as the source-code folder.
+1. Confirm prerequisites
+2. In Command Line/Shell, run `python3 spread_simul.py`
 
-### Prerequisites:
-1. Python3
-2. numpy v1.18 or more
-3. matplotlib
-4. Gooey
-2 thourgh 4 may be downloaded by using pip install <module>
+### Pre-requisites for running from the source-code:
+1. Python3.8 or higher
+2. Numpy >= 1.18
+3. Matplotlib >= 3.2.1
+4. Gooey >= [1.0.3](https://github.com/chriskiehl/Gooey)
+
+*2 thourgh 4 may be downloaded by using pip install <module>*
 
 ## Legend:
-Background Colour:
-Green: No restrictions on movement
-Red: Lockdown Imposed
+### Background Colour:**
+**Movements**
+- Green: No restrictions on movement
+- Red: Lockdown Imposed
 
-Blue: Drug discovered
-Cyan: Vaccine discovered
+**Scientific Progress**
+- Blue: Drug discovered
+- Cyan: Vaccine discovered
 
-Grey: Red + Cyan
-Magenta: Red + Blue
+**Combinations**
+- Grey: Red + Cyan
+- Magenta: Red + Blue
+- (Any other standard RGB combinations)
 
 ## Disclaimer:
 1. Population more than 10000 may stall the system
-2. Tested only on Linux
+2. Tested only on Linux running from source-code
