@@ -80,7 +80,7 @@ def simulate(
                 # Restrict movement
                 city.rms_v //= movement_restrict
                 city.move_per_day //= contact_restrict
-            elif days == ZERO_LOCK:
+            elif days == zero_lock:
                 # End of initial lockdown
                 city.rms_v *= movement_restrict
                 city.move_per_day *= contact_restrict
@@ -91,7 +91,7 @@ def simulate(
         city.pass_day()
         update_plot(plt, fig, ax, lines, days, args, lockdown, days, *reaction)
         if intervention and lockdown == 0 and (args[2] > next_lockdown):
-            next_lockdown *= lockdown_PANIC
+            next_lockdown *= lockdown_panic
             # Panic by infection Spread
             lockdown = 1
             city.rms_v //= movement_restrict

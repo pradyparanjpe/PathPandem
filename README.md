@@ -10,7 +10,7 @@ Run file `spread_simul.exe`.
 Run from [source-code](src/spread_simul.py)
 
 ## Running from the source-code
-1. Confirm prerequisites
+1. Confirm pre-requisites
 2. In Command Line/Shell, run `python3 spread_simul.py`
 
 ### Pre-requisites for running from the source-code:
@@ -45,12 +45,12 @@ Run from [source-code](src/spread_simul.py)
 - A heterogenous population can be composed using basic Python scripting in the `spread_simul.py` to construct heterogenously behaving population.
 
 ## TODO:
-- Plot a representation of public movements. (This might be really heavy)
-- Replace Unimodal movement of people around their home to bimodal movement between home and workplace.
+- Plot a representation of public movements. Position is a 2D numpy array. (This might be really heavy)
+- Replace unimodal movement of people around their home to bimodal movement between home and workplace.
 - Parallelize numpy matrix `ufuncs` if possible.
 - Include asymptomatic patients/carriers.
 
-## Epodemiological explanation:
+## Epidemiological explanation:
 - Herd immunity starts reducing viral presence in community after viral steady state. i.e. plot of *Active* patients flattens. This happens when [1 - (1/R_{0})] fraction of the community becomes resistant. (Through vaccination or exposure)
 - Medicine development is fairly a rare event given the rightful stringency involved in testing.
 - Vaccine mass delivery may be more impactful than vaccine discovery.
