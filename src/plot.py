@@ -23,13 +23,17 @@ from numpy import append as npappend
 from matplotlib import pyplot as plt
 
 
-def init_plot(space):
+def init_plot(space, persistence, visualize=True):
     '''Initiate matplot'''
-    fig, ax = plt.subplots(2)
-    epidem_ax = ax[0]
+    fig, ax = plt.subplots(nrows=1, ncols=(visualize + 1))
+    fig.set_facecolor("#7F7F7F7F")
+    if visualize:
+        epidem_ax = ax[0]
+        contam_ax = ax[1]
+        contam_dots = init_contam(contam_ax, space, persistence)
+    else:
+        contam_ax, contam_dots, epidem_ax = None, None, ax
     epidem_lines = init_epidem(epidem_ax)
-    contam_ax = ax[1]
-    contam_dots = init_contam(contam_ax, space)
     plt.ion()
     return plt, fig, epidem_ax, contam_ax, epidem_lines, contam_dots
 
@@ -46,7 +50,9 @@ def init_epidem(ax):
     for names in HOSTTYPE:
         line_n, = ax.plot([],[], label=names, color=HOSTTYPE[names])
         lines.append(line_n)
-    ax.legend()
+    ax.legend(loc='lower left', bbox_to_anchor= (0.0, 1.01), ncol=2,
+        borderaxespad=0, frameon=False)
+    # ax.legend()
     ax.set_facecolor("#000000")
     ax.grid(color="#7f7f7f", linestyle="dotted", linewidth=1)
     ax.set_xlabel("Days")
@@ -54,18 +60,31 @@ def init_epidem(ax):
     return lines
 
 
-def init_contam(ax, space):
+def init_contam(ax, space, persistence):
     '''Initiate space-contamination visualization'''
-    host = ax.scatter([], [] , s=1, c="#FFFF3FFF", label="Carrier")
-    pathn = ax.scatter([], [], s=1, c="#FF3F3F7F", label="Contaminated")
+    hosts = []
+    hosttypes = {"unaffected": "#3F3F3FFF", "carrier": "#0000FFFF"}
+    for typ in hosttypes:
+        hosts.append(ax.scatter([], [] , s=1, c=hosttypes[typ] , label=typ))
+    pathns = []
+    for persist in range(persistence):
+        colstr = "#FF3F3F" + hex(int(0x7F * (1 - persist/persistence)))[2:]
+        if not persist:
+            pathns.append(ax.scatter([], [], s=1, c=colstr,
+                                     label="Contaminated"))
+        else:
+            pathns.append(ax.scatter([], [], s=1, c=colstr))
     ax.set_xlim(0, space)
     ax.set_ylim(0, space)
-    ax.legend()
+    ax.set_aspect(1)
+    ax.legend(loc='lower left', bbox_to_anchor= (0.0, 1.01), ncol=2,
+        borderaxespad=0, frameon=False)
+    # ax.legend()
     ax.set_facecolor("#000000")
     ax.grid(color="#7f7f7f", linestyle="dotted", linewidth=1)
     ax.set_xlabel("East<->West")
     ax.set_ylabel("North<->South")
-    return host, pathn
+    return hosts, pathns
 
 
 def update_epidem(plt, fig, ax, lines, tp: int, updates: tuple, lockdown: int=0,
@@ -106,12 +125,16 @@ def update_epidem(plt, fig, ax, lines, tp: int, updates: tuple, lockdown: int=0,
     return
 
 
-def update_contam(plt, fig, ax, dots, host_pos: list, pathn_pos) -> None:
+def update_contam(plt, fig, ax, dots,
+                  host_types: list, pathn_pers: list) -> None:
     '''Update'''
-    pathn = list(zip(pathn_pos[0].tolist(), pathn_pos[1].tolist()))
-    host_sc, pathn_sc = dots
-    pathn_sc.set_offsets(pathn)
-    host_sc.set_offsets(host_pos)
+    host_scs, pathn_scs = dots
+    for idx, typ in enumerate(host_scs):
+        typ.set_offsets(host_types[idx])
+    for idx, persist in enumerate(pathn_scs):
+        pathn = list(zip(*pathn_pers[idx]))
+        if pathn:
+            persist.set_offsets(pathn)
     fig.canvas.draw()
     plt.pause(0.0005)
     return

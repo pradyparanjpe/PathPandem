@@ -34,6 +34,7 @@ from numpy import logical_or as npor
 from numpy import nonzero as npnonzero
 from numpy import any as npany
 from person import person
+from pathogen import pathogen
 from plot import update_contam
 
 
@@ -182,63 +183,62 @@ class population(object):
     def calc_exposure(self, indiv, pos)-> None:
         '''Get exposed or expose the space to infection'''
         # Deposit self's pathogen strain at point
-        carrier = False  # Not the biological asymptomatic carrier
         i_pos, j_pos = pos[indiv].tolist()
         pathy = self.strain_types[self.strain[indiv]]
         if pathy:  # indiv is carrying infection
-            carrier = True
             self.space_contam[i_pos, j_pos] = (
                 self.active[indiv] * pathy.persistence)
             self.space_dep_strain[i_pos, j_pos] = (
                 self.active[indiv] * self.strain[indiv])
+            # Can't collect any more
+            return
         # Collect pathy
         in_strain = self.strain_types[
             self.space_dep_strain[i_pos, j_pos]]
-        if (not(carrier)  # indiv can't renew their infection by depositing
-            and self.susceptible[indiv]
-            and in_strain):
-            if (nprandom.random()
-                < self.susceptible[indiv] * in_strain.inf_per_exp):
+        if not (in_strain and self.susceptible[indiv]):
+            return
+        if (nprandom.random()
+            > self.susceptible[indiv] * in_strain.inf_per_exp):
+            return
 
-                # Get infected
-                self.active[indiv] = True
-                self.progress[indiv] = 0.000001
-                self.recovered[indiv] = False
-                self.susceptible[indiv] = nprandom.random() * 0.01
-                # Some unfortunate indiv still get infected again
+        # Get infected
+        self.active[indiv] = True
+        self.progress[indiv] = 0.000001
+        self.recovered[indiv] = False
+        self.susceptible[indiv] = nprandom.random() * 0.01
+        # Some unfortunate indiv still get infected again
 
-                # Possibility of mutation in pathogen
-                # (For Future, to simulate evolution of pathogens)
-                if nprandom.random() < 0.0001: # Rarely, mutate
-                    # Motion and probability of mutation arbitrarily chosen
-                    # (Biological cumulative mutation rates are 10^-6to-7)
-                    # Cleaner to generate a numpy random array
-                    mutations = 1 + nprandom.random(size=4) * 0.02 - 0.01
-                    # Then, use each random number in the array
-                    mut_cfr = in_strain.cfr * mutations[0]
-                    mut_inf_per_day = in_strain.inf_per_day * mutations[1]
-                    mut_inf_per_exp = in_strain.inf_per_exp * mutations[2]
-                    mut_persistence = in_strain.persistence * mutations[3]
+        # Possibility of mutation in pathogen
+        # (For Future, to simulate evolution of pathogens)
+        if nprandom.random() < 0.0001: # Rarely, mutate
+            # Motion and probability of mutation arbitrarily chosen
+            # (Biological cumulative mutation rates are 10^-6to-7)
+            # Cleaner to generate a numpy random array
+            mutations = 1 + nprandom.random(size=3) * 0.02 - 0.01
+            # Then, use each random number in the array
+            mut_cfr = in_strain.cfr * mutations[0]
+            mut_inf_per_day = in_strain.inf_per_day * mutations[1]
+            mut_inf_per_exp = in_strain.inf_per_exp * mutations[2]
 
-                    # Compose a mutated strain
-                    mut_str = pathogen(parent=in_strain, cfr=mut_cfr,
-                                       day_per_inf=2/mut_inf_per_day,
-                                       inf_per_exp=mut_inf_per_exp,
-                                       persistence=mut_persistence)
+            # Compose a mutated strain
+            mut_str = pathogen(parent=in_strain, cfr=mut_cfr,
+                               day_per_inf=2/mut_inf_per_day,
+                               inf_per_exp=mut_inf_per_exp,
+            )
 
-                    # This strain has now entered the population
-                    self.strain_types.append(mut_str)
+            # This strain has now entered the population
+            self.strain_types.append(mut_str)
 
-                    # Indiv is infected by mutated strain
-                    self.strain[indiv] = len(self.strain_types) - 1
-                    self.cfr[indiv] = mut_cfr
-                    self.inf_per_day[indiv] = mut_inf_per_day
-                else:
+            # Indiv is infected by mutated strain
+            self.strain[indiv] = len(self.strain_types) - 1
+            self.cfr[indiv] = mut_cfr
+            self.inf_per_day[indiv] = mut_inf_per_day
+        else:
 
-                    # Indiv is infected by old (unmutated strain)
-                    self.strain[indiv] = self.strain_types.index(in_strain)
-                    self.cfr[indiv] = in_strain.cfr
-                    self.inf_per_day[indiv] = in_strain.inf_per_day
+            # Indiv is infected by old (unmutated strain)
+            self.strain[indiv] = self.strain_types.index(in_strain)
+            self.cfr[indiv] = in_strain.cfr
+            self.inf_per_day[indiv] = in_strain.inf_per_day
         return
 
 
@@ -265,10 +265,17 @@ class population(object):
                 if walk_left[indiv]:
                     self.calc_exposure(indiv, pos)
             if self.dots:
+                strain_persist = self.strain_types[-1].persistence
+                host_types = []
+                host_types.append(pos.tolist())
+                host_types.append((pos * self.active[:, None]).tolist())
+                pathn_pers = []
+                for pers in range(int(strain_persist))[::-1]:
+                    pathn_pers.append(npnonzero(self.space_contam==(pers+1)))
                 update_contam(
                     self.plt, self.fig, self.ax, self.dots,
-                    (pos * self.active[:, None]).tolist(),
-                    npnonzero(self.space_contam!=0)
+                    host_types,
+                    pathn_pers
                 )
         return
 
@@ -278,8 +285,10 @@ class population(object):
         # Remember, active, recovered, support are bool
 
         # Health declines every day
-        self.health -= self.active * self.cfr\
-            * nprandom.random(size=self.pop_size)
+        self.health -= nparray(
+            self.active
+            * nprandom.random(size=self.pop_size) * self.cfr,
+            dtype=self.health.dtype)
         self.progress += nprandom.random(size=self.pop_size)\
             * self.active * self.inf_per_day
         self.progress = self.progress.clip(min=0, max=1)
@@ -289,7 +298,7 @@ class population(object):
             self.active * npnot(self.recovered), dtype=bool)
         # If recovered, return to original health
         self.health = nparray(npnot(self.active) * (1 - self.comorbidity),
-                              dtype=self.health.dtype)\
+                              dtype=self.health.dtype) \
                               + nparray(self.active * self.health,
                                         dtype=self.health.dtype)
 
@@ -297,6 +306,7 @@ class population(object):
         self.support = self.health < self.serious_health
 
         # If support is required but not available, indiv dies
+        dead_idx = []
         dead_idx = npnonzero(self.support)[0].tolist()
         shuffle(dead_idx)
         dead_idx = dead_idx[int(self.infrastructure):]
@@ -312,6 +322,10 @@ class population(object):
         # Contamination reduces over time
         self.space_contam -= 1
         self.space_contam = self.space_contam.clip(min=0)
+        self.space_dep_strain = nparray(
+            self.space_dep_strain * nparray(self.space_contam, dtype=bool),
+            dtype=self.space_dep_strain.dtype
+        )
         # Infrastructure may grow, but linearly and very slow
         self.infrastructure = max(min(
             self.infrastructure + 0.2, self.active.sum()/20),

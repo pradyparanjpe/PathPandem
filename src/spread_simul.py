@@ -36,11 +36,11 @@ if __name__ == "__main__":
         PERSISTENCE, DAY_PER_INF, SERIOUS_HEALTH, INF_PER_EXP,\
         MOVEMENT_RESTRICT, CONTACT_RESTRICT, LOCKDOWN_CHUNK,\
         LOCKDOWN_PANIC, ZERO_LOCK, EARLY_ACTION, INTERVENTION,\
-        VAC_RES, VAC_COV, MED_EFF, MED_RECOV = cli()
+        VAC_RES, VAC_COV, MED_EFF, MED_RECOV, VISUALIZE = cli()
 
     # INITS
     MAX_SPACE = int(pow(SIMUL_POP/POP_DENSE, 0.5))  # Sqr_mtr
-    CFR = ih_translate(cfr=CFR/2, day_per_inf=DAY_PER_INF)
+    CFR = ih_translate(cfr=CFR/2, day_per_inf=int(DAY_PER_INF*1.414))
     # Log raw survey numbers
     FNAME_BASE= int(EARLY_ACTION) * "Early_acted_"\
             + int(INTERVENTION) * "Intervened_"\
@@ -58,7 +58,8 @@ if __name__ == "__main__":
         day_per_inf=DAY_PER_INF, inf_per_exp=INF_PER_EXP,
         persistence=PERSISTENCE
     )
-    plt, fig, epidem_ax, contam_ax, lines, dots = init_plot(SPACE)
+    plt, fig, epidem_ax, contam_ax, lines, dots = init_plot(
+        SPACE, PERSISTENCE, VISUALIZE)
     CITY.plt, CITY.fig, CITY.ax, CITY.dots = plt, fig, contam_ax, dots
     err = simulate(
         city=CITY, logfile=LOGFILE, plt=plt, fig=fig, ax=epidem_ax, lines=lines,
