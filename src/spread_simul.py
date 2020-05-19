@@ -27,7 +27,7 @@ from person import person
 from misc import ih_translate
 from simul import simulate
 from compose_pop import compose_homogenous
-from plot import init_plot, update_plot
+from plot import init_plot
 
 
 if __name__ == "__main__":
@@ -49,9 +49,8 @@ if __name__ == "__main__":
     print("Active(INST)", "Recovered", "Cases", "Critical(INST)", "Deaths",
           file=LOGFILE, flush=True)
 
-    plt, fig, ax, lines = init_plot()
     # INIT pathogen, host-type
-    CITY, SIMUL_POP, PATHY = compose_homogenous(
+    CITY, SIMUL_POP, PATHY, SPACE = compose_homogenous(
         simul_pop=SIMUL_POP, pop_dense=POP_DENSE, infra=INFRA,
         move_per_day=MOVE_PER_DAY, rms_v=RMS_V, serious_health=SERIOUS_HEALTH,
         seed_inf=SEED_INF, feeble_prop=FEEBLE_PROP, comorbidity=COMORBIDITY,
@@ -59,8 +58,10 @@ if __name__ == "__main__":
         day_per_inf=DAY_PER_INF, inf_per_exp=INF_PER_EXP,
         persistence=PERSISTENCE
     )
+    plt, fig, epidem_ax, contam_ax, lines, dots = init_plot(SPACE)
+    CITY.plt, CITY.fig, CITY.ax, CITY.dots = plt, fig, contam_ax, dots
     err = simulate(
-        city=CITY, logfile=LOGFILE, plt=plt, fig=fig, ax=ax, lines=lines,
+        city=CITY, logfile=LOGFILE, plt=plt, fig=fig, ax=epidem_ax, lines=lines,
         simul_pop=SIMUL_POP, med_recov=MED_RECOV, med_eff=MED_EFF,
         vac_res=VAC_RES, vac_cov=VAC_COV, movement_restrict=MOVEMENT_RESTRICT,
         contact_restrict=CONTACT_RESTRICT, lockdown_chunk=LOCKDOWN_CHUNK,

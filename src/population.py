@@ -34,6 +34,7 @@ from numpy import logical_or as npor
 from numpy import nonzero as npnonzero
 from numpy import any as npany
 from person import person
+from plot import update_contam
 
 
 class population(object):
@@ -42,6 +43,7 @@ class population(object):
             self, people: list=[], infrastructure: float=0, pop_size: int=0,
             p_max: int=10000, serious_health: float=0.3,
             vaccine_resist: float=0, vaccine_cov: float=0,
+            plt=None, fig=None, ax=None, dots=None,
     )-> None:
         self.pop_size = pop_size  # Intermixing Population size
         self.p_max = p_max  # Geographical boundary (x)
@@ -50,6 +52,10 @@ class population(object):
         self.infrastructure: float = infrastructure  # Available beds
         self.vaccine_resist = vaccine_resist
         self.vaccine_cov = vaccine_cov
+        self.plt = plt
+        self.fig = fig
+        self.ax = ax
+        self.dots = dots
 
         # Use fast numpy ufunc operations on arrays (may be ported to cupy)
         self.active: nparray = nparray([False] * pop_size, dtype=bool)
@@ -258,6 +264,12 @@ class population(object):
                 # TODO: A ufunc would have been faster
                 if walk_left[indiv]:
                     self.calc_exposure(indiv, pos)
+            if self.dots:
+                update_contam(
+                    self.plt, self.fig, self.ax, self.dots,
+                    (pos * self.active[:, None]).tolist(),
+                    npnonzero(self.space_contam!=0)
+                )
         return
 
     def inf_progress(self)-> None:

@@ -56,4 +56,4 @@ def compose_homogenous(
     city.compose_pop(feeble, feeble_prop)
     city.compose_pop(founder, seed_inf)
     simul_pop = city.pop_size
-    return city, simul_pop, pathy
+    return city, simul_pop, pathy, max_space

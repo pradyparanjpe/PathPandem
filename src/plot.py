@@ -23,7 +23,52 @@ from numpy import append as npappend
 from matplotlib import pyplot as plt
 
 
-def update_plot(plt, fig, ax, lines, tp: int, updates: tuple, lockdown: int=0,
+def init_plot(space):
+    '''Initiate matplot'''
+    fig, ax = plt.subplots(2)
+    epidem_ax = ax[0]
+    epidem_lines = init_epidem(epidem_ax)
+    contam_ax = ax[1]
+    contam_dots = init_contam(contam_ax, space)
+    plt.ion()
+    return plt, fig, epidem_ax, contam_ax, epidem_lines, contam_dots
+
+
+def init_epidem(ax):
+    '''Initiate matplot'''
+    lines = []
+    HOSTTYPE = {"active": "#7F7FFF",
+                "recovered": "#7FFF7F",
+                "cases": "#FFFF7F",
+                "serious/critical": "#FF7F7F",
+                "dead": "#FFFFFF",
+                "new cases": "#7F7F3F"}
+    for names in HOSTTYPE:
+        line_n, = ax.plot([],[], label=names, color=HOSTTYPE[names])
+        lines.append(line_n)
+    ax.legend()
+    ax.set_facecolor("#000000")
+    ax.grid(color="#7f7f7f", linestyle="dotted", linewidth=1)
+    ax.set_xlabel("Days")
+    ax.set_ylabel("Persons")
+    return lines
+
+
+def init_contam(ax, space):
+    '''Initiate space-contamination visualization'''
+    host = ax.scatter([], [] , s=1, c="#FFFF3FFF", label="Carrier")
+    pathn = ax.scatter([], [], s=1, c="#FF3F3F7F", label="Contaminated")
+    ax.set_xlim(0, space)
+    ax.set_ylim(0, space)
+    ax.legend()
+    ax.set_facecolor("#000000")
+    ax.grid(color="#7f7f7f", linestyle="dotted", linewidth=1)
+    ax.set_xlabel("East<->West")
+    ax.set_ylabel("North<->South")
+    return host, pathn
+
+
+def update_epidem(plt, fig, ax, lines, tp: int, updates: tuple, lockdown: int=0,
                 days: int=0, zero_lock: bool=False, early_action: bool=False,
                 intervention: bool=False, vaccined: bool=False,
                 drugged: bool=False) -> None:
@@ -57,29 +102,16 @@ def update_plot(plt, fig, ax, lines, tp: int, updates: tuple, lockdown: int=0,
         fig.canvas.draw()
         ax.relim();
         ax.autoscale_view(True, True, True)
-        plt.xscale("linear")
-        plt.yscale("linear")
-        plt.pause(0.5)
+        plt.pause(0.0005)
     return
 
 
-def init_plot():
-    '''Initiate matplot'''
-    fig, ax = plt.subplots()
-    lines = []
-    HOSTTYPE = {"active": "#7F7FFF",
-                "recovered": "#7FFF7F",
-                "cases": "#FFFF7F",
-                "serious/critical": "#FF7F7F",
-                "dead": "#FFFFFF",
-                "new cases": "#7F7F3F"}
-    for names in HOSTTYPE:
-        line_n, = ax.plot([],[], label=names, color=HOSTTYPE[names])
-        lines.append(line_n)
-    ax.legend()
-    ax.set_facecolor("#000000")
-    ax.grid(color="#7f7f7f", linestyle="dotted", linewidth=1)
-    ax.set_xlabel("Days")
-    ax.set_ylabel("Persons")
-    plt.ion()
-    return plt, fig, ax, lines
+def update_contam(plt, fig, ax, dots, host_pos: list, pathn_pos) -> None:
+    '''Update'''
+    pathn = list(zip(pathn_pos[0].tolist(), pathn_pos[1].tolist()))
+    host_sc, pathn_sc = dots
+    pathn_sc.set_offsets(pathn)
+    host_sc.set_offsets(host_pos)
+    fig.canvas.draw()
+    plt.pause(0.0005)
+    return

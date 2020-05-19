@@ -38,7 +38,7 @@ from numpy import any as npany
 from numpy import append as npappend
 from numpy import int16 as npint64
 from numpy import random as nprandom
-from plot import update_plot
+from plot import update_epidem
 from definitions import MED_DISCOVERY
 
 def simulate(
@@ -58,7 +58,7 @@ def simulate(
     days = 0
     args = city.survey(simul_pop)
     reaction = zero_lock, early_action, intervention, vaccined, drugged
-    update_plot(plt, fig, ax, lines, days, args, lockdown, days, *reaction)
+    update_epidem(plt, fig, ax, lines, days, args, lockdown, days, *reaction)
     track = npappend(track, nparray(args).reshape((1, 5)), axis=0)
     print(*args, file=logfile, flush=True)
     city.pass_day()  # IT STARTS!
@@ -89,7 +89,7 @@ def simulate(
         track = npappend(track, nparray(args).reshape((1, 5)), axis=0)
         print(*args, file=logfile, flush=True)
         city.pass_day()
-        update_plot(plt, fig, ax, lines, days, args, lockdown, days, *reaction)
+        update_epidem(plt, fig, ax, lines, days, args, lockdown, days, *reaction)
         if intervention and lockdown == 0 and (args[2] > next_lockdown):
             next_lockdown *= lockdown_panic
             # Panic by infection Spread
@@ -106,6 +106,6 @@ def simulate(
     args = city.survey(simul_pop)
     track = npappend(track, nparray(args).reshape((1, 5)), axis=0)
     print(*args, file=logfile, flush=True)
-    update_plot(plt, fig, ax, lines, days, args, lockdown, days, *reaction)
+    update_epidem(plt, fig, ax, lines, days, args, lockdown, days, *reaction)
     return
 
