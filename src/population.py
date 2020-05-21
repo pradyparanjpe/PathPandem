@@ -269,6 +269,9 @@ class population(object):
                 host_types = []
                 host_types.append(pos.tolist())
                 host_types.append((pos * self.active[:, None]).tolist())
+                host_types.append((pos * (npnot(self.active[:, None])
+                                          * (self.susceptible[:, None]
+                                             < 0.1))).tolist())
                 pathn_pers = []
                 for pers in range(int(strain_persist))[::-1]:
                     pathn_pers.append(npnonzero(self.space_contam==(pers+1)))

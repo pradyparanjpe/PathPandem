@@ -63,7 +63,9 @@ def init_epidem(ax):
 def init_contam(ax, space, persistence):
     '''Initiate space-contamination visualization'''
     hosts = []
-    hosttypes = {"unaffected": "#3F3F3FFF", "carrier": "#0000FFFF"}
+    hosttypes = {"unaffected person": "#3F3F3FFF",
+                 "carrier person": "#0000FFFF",
+                 "resistant person": "#3FFF3FFF"}
     for typ in hosttypes:
         hosts.append(ax.scatter([], [] , s=1, c=hosttypes[typ] , label=typ))
     pathns = []
@@ -71,7 +73,7 @@ def init_contam(ax, space, persistence):
         colstr = "#FF3F3F" + hex(int(0x7F * (1 - persist/persistence)))[2:]
         if not persist:
             pathns.append(ax.scatter([], [], s=1, c=colstr,
-                                     label="Contaminated"))
+                                     label="Contaminated space"))
         else:
             pathns.append(ax.scatter([], [], s=1, c=colstr))
     ax.set_xlim(0, space)

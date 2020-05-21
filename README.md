@@ -40,6 +40,7 @@ Run from [source-code](src/spread_simul.py)
 1. Population more than 10000 may stall the system.
 2. Tested only on Linux running from source-code.
 3. *True* numbers are plotted. However in reallity, infection manifests symptoms after an initial lag of 1-3 days and test results appear further later by 1-2 days. Hence, graph trends need be imagined as having shifted suitably.
+4. Although Infection may appear to exhaust in small sized, limited population, due to birth of new individuals, and in a very large population, the pathogen persists around at extemely low density.
 
 ## Composition of scenario:
 - The GUI only edits the blanket population behaviour.
