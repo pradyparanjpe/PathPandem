@@ -242,7 +242,7 @@ class population(object):
         return
 
 
-    def random_walk(self)-> None:
+    def random_walk(self, d=None)-> None:
         '''Let all population walk randomly'''
         walk_left = self.move_per_day.copy()
         # Every day, people start from home
@@ -277,7 +277,7 @@ class population(object):
                     host_types,
                     pathn_pers
                 )
-        return
+        return self.dots
 
     def inf_progress(self)-> None:
         '''progress infection every day'''

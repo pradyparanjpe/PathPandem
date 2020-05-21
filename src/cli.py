@@ -29,12 +29,12 @@ def cli()-> tuple:
         description="Simulate spread of a disease",
         formatter_class=ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("-g", "--graphical-visualization", action='store_true',
-                        help="Visualize population movements, very slow")
     parser.add_argument("-e", "--early-action", action='store_true',
                         help="Community takes early action")
     parser.add_argument("-i", "--intermediate-action", action='store_true',
                         help="Community locks down intermittently")
+    parser.add_argument("-g", "--graphical-visualization", action='store_true',
+                        help="Visualize population movements, very slow")
     parser.add_argument("-P", "--population", type=int, default=5000,
                         help="Population to simulate, sugest: <50000")
     parser.add_argument(
@@ -60,11 +60,11 @@ def cli()-> tuple:
                         help="% of cases turning fatal")
     parser.add_argument("-p", "--persistence", default=3, type=int,
                         help="Days for which pathogen stays viable on surface")
-    parser.add_argument("-d", "--days-per-inf", default=6, type=int,
+    parser.add_argument("-d", "--days-per-inf", default=10, type=int,
                         help="Average days of infection before clearance")
     parser.add_argument("-H", "--serious-health", default=30, type=float,
                         help="Below this %, life support is essential")
-    parser.add_argument("-E", "--efficiency", default=10, type=float,
+    parser.add_argument("-E", "--efficiency", default=7, type=float,
                         help="(Efficiency) Infection per 100 exposures")
     parser.add_argument("-w", "--worried-movement-ratio", default=3, type=int,
                         help="Fold reduction in movement")

@@ -19,38 +19,40 @@ Run from [source-code](src/spread_simul.py)
 3. Matplotlib >= 3.2.1
 4. Gooey >= [1.0.3](https://github.com/chriskiehl/Gooey)
 
-*2 thourgh 4 may be downloaded by using `pip install <module>`*
+*1 may be installed from official source; further, 2, 3, 4 may be installed by command `pip install <module>`*.
 
 ## Legend:
 ### Background Colour:
 **Movements**
-- Green: No restrictions on movement
-- Red: Lockdown Imposed
+- Green: No restrictions on movement.
+- Red: Lockdown Imposed.
 
 **Scientific Progress**
-- Blue: Drug discovered
-- Cyan: Vaccine discovered
+- Blue: Drug discovered.
+- Cyan: Vaccine discovered.
 
 **Combinations**
-- Grey: Red + Cyan
-- Magenta: Red + Blue
-- (Any other standard RGB combinations)
+- Grey: Red + Cyan.
+- Magenta: Red + Blue.
+- (Any other standard RGB combinations).
 
 ## Caution:
-1. Population more than 10000 may stall the system
-2. Tested only on Linux running from source-code
+1. Population more than 10000 may stall the system.
+2. Tested only on Linux running from source-code.
+3. *True* numbers are plotted. However in reallity, infection manifests symptoms after an initial lag of 1-3 days and test results appear further later by 1-2 days. Hence, graph trends need be imagined as having shifted suitably.
 
 ## Composition of scenario:
 - The GUI only edits the blanket population behaviour.
 - A heterogenous population can be composed using basic Python scripting in the `spread_simul.py` to construct heterogenously behaving population.
 
 ## TODO:
-- Plot a representation of public movements. Position is a 2D numpy array. (This might be really heavy)
 - Replace unimodal movement of people around their home to bimodal movement between home and workplace.
 - Parallelize numpy matrix `ufuncs` if possible.
-- Include asymptomatic patients/carriers.
+- Include asymptomatic patients/carriers. Limit movement of serious cases [although this won't have a visible effect for diseases with majority of cases being mild].
+- Animation, saved as mp4 for review
 
 ## Epidemiological explanation:
 - Herd immunity starts reducing viral presence in community after viral steady state. i.e. plot of *Active* patients flattens. This happens when [1 - (1/R_{0})] fraction of the community becomes resistant. (Through vaccination or exposure)
 - Medicine development is fairly a rare event given the rightful stringency involved in testing.
-- Vaccine mass delivery may be more impactful than vaccine discovery.
+- With small population size, random fluctuations become impactful. Multiple runs with same parameters are recommended.
+- Visualization is recommended only with very small population size.

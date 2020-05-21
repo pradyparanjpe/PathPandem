@@ -49,7 +49,6 @@ def simulate(
         zero_lock: bool=False, intervention: bool=False, early_action=False
 ) -> tuple:
     '''Recursive simulation of each day'''
-    print(lockdown_chunk)
     vaccined: bool = False
     drugged: bool = False
     lockdown = 0
