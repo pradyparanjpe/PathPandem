@@ -35,7 +35,6 @@ from numpy import nonzero as npnonzero
 from numpy import any as npany
 from person import person
 from pathogen import pathogen
-from plot import update_contam
 
 
 class population(object):
@@ -44,7 +43,6 @@ class population(object):
             self, people: list=[], infrastructure: float=0, pop_size: int=0,
             p_max: int=10000, serious_health: float=0.3,
             vaccine_resist: float=0, vaccine_cov: float=0,
-            plt=None, fig=None, ax=None, dots=None,
     )-> None:
         self.pop_size = pop_size  # Intermixing Population size
         self.p_max = p_max  # Geographical boundary (x)
@@ -53,10 +51,6 @@ class population(object):
         self.infrastructure: float = infrastructure  # Available beds
         self.vaccine_resist = vaccine_resist
         self.vaccine_cov = vaccine_cov
-        self.plt = plt
-        self.fig = fig
-        self.ax = ax
-        self.dots = dots
 
         # Use fast numpy ufunc operations on arrays (may be ported to cupy)
         self.active: nparray = nparray([False] * pop_size, dtype=bool)
@@ -242,7 +236,7 @@ class population(object):
         return
 
 
-    def random_walk(self, d=None)-> None:
+    def random_walk(self, d=None, plot_h=None)-> None:
         '''Let all population walk randomly'''
         walk_left = self.move_per_day.copy()
         # Every day, people start from home
@@ -264,10 +258,12 @@ class population(object):
                 # TODO: A ufunc would have been faster
                 if walk_left[indiv]:
                     self.calc_exposure(indiv, pos)
-            if self.dots:
+            if plot_h.contam_dots:
                 strain_persist = self.strain_types[-1].persistence
                 host_types = []
-                host_types.append(pos.tolist())
+                host_types.append((pos * (npnot(self.active[:, None])
+                                          * npnot(self.susceptible[:, None]
+                                                  < 0.1))).tolist())
                 host_types.append((pos * self.active[:, None]).tolist())
                 host_types.append((pos * (npnot(self.active[:, None])
                                           * (self.susceptible[:, None]
@@ -275,12 +271,8 @@ class population(object):
                 pathn_pers = []
                 for pers in range(int(strain_persist))[::-1]:
                     pathn_pers.append(npnonzero(self.space_contam==(pers+1)))
-                update_contam(
-                    self.plt, self.fig, self.ax, self.dots,
-                    host_types,
-                    pathn_pers
-                )
-        return self.dots
+                plot_h.update_contam(host_types, pathn_pers)
+        return
 
     def inf_progress(self)-> None:
         '''progress infection every day'''
@@ -352,10 +344,9 @@ class population(object):
         num_cases: int = num_active + num_recovered + dead
         num_serious: int = nparray(self.support).sum()
         return num_active, num_recovered, num_cases, num_serious, dead
-
-    def pass_day(self)-> None:
+    def pass_day(self, plot_h=None)-> None:
         '''progress all population and infections'''
-        self.random_walk()  # Macro-scale population
+        self.random_walk(plot_h=plot_h)  # Macro-scale population
         self.inf_progress()  # Micro-scale: infected individual
         return
 

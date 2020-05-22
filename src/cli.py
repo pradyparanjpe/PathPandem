@@ -29,10 +29,10 @@ def cli()-> tuple:
         description="Simulate spread of a disease",
         formatter_class=ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("-e", "--early-action", action='store_true',
-                        help="Community takes early action")
     parser.add_argument("-i", "--intermediate-action", action='store_true',
                         help="Community locks down intermittently")
+    parser.add_argument("-e", "--early-action", action='store_true',
+                        help="Community takes early action")
     parser.add_argument("-g", "--graphical-visualization", action='store_true',
                         help="Visualize population movements, very slow")
     parser.add_argument("-P", "--population", type=int, default=5000,

@@ -27,7 +27,7 @@ from person import person
 from misc import ih_translate
 from simul import simulate
 from compose_pop import compose_homogenous
-from plot import init_plot
+from plot import plot_wrap
 
 
 if __name__ == "__main__":
@@ -58,16 +58,13 @@ if __name__ == "__main__":
         day_per_inf=DAY_PER_INF, inf_per_exp=INF_PER_EXP,
         persistence=PERSISTENCE
     )
-    plt, fig, epidem_ax, contam_ax, lines, dots = init_plot(
-        SPACE, PERSISTENCE, VISUALIZE)
-    CITY.plt, CITY.fig, CITY.ax, CITY.dots = plt, fig, contam_ax, dots
+    PLOT_H = plot_wrap(SPACE, PERSISTENCE, VISUALIZE)
     err = simulate(
-        city=CITY, logfile=LOGFILE, plt=plt, fig=fig, ax=epidem_ax, lines=lines,
-        simul_pop=SIMUL_POP, med_recov=MED_RECOV, med_eff=MED_EFF,
+        city=CITY, logfile=LOGFILE, simul_pop=SIMUL_POP, med_recov=MED_RECOV, med_eff=MED_EFF,
         vac_res=VAC_RES, vac_cov=VAC_COV, movement_restrict=MOVEMENT_RESTRICT,
         contact_restrict=CONTACT_RESTRICT, lockdown_chunk=LOCKDOWN_CHUNK,
         lockdown_panic=LOCKDOWN_PANIC, seed_inf=SEED_INF, zero_lock=ZERO_LOCK,
-        intervention=INTERVENTION, early_action=EARLY_ACTION
+        intervention=INTERVENTION, early_action=EARLY_ACTION, plot_h=PLOT_H,
     )
 
     # Finally, save

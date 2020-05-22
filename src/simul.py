@@ -38,15 +38,15 @@ from numpy import any as npany
 from numpy import append as npappend
 from numpy import int16 as npint64
 from numpy import random as nprandom
-from plot import update_epidem
 from definitions import MED_DISCOVERY
 
 def simulate(
-        city, logfile, plt, fig, ax, lines, simul_pop, med_eff: float=0.,
+        city, logfile, simul_pop, med_eff: float=0.,
         med_recov: float=0, vac_res: float=0, vac_cov: float=0.,
         movement_restrict: int=0, contact_restrict: int=0,
         lockdown_chunk: int=0, lockdown_panic: int=1, seed_inf: int=0,
-        zero_lock: bool=False, intervention: bool=False, early_action=False
+        zero_lock: bool=False, intervention: bool=False, early_action=False,
+        plot_h=None
 ) -> tuple:
     '''Recursive simulation of each day'''
     vaccined: bool = False
@@ -58,10 +58,10 @@ def simulate(
     days = 0
     args = city.survey(simul_pop)
     reaction = zero_lock, early_action, intervention, vaccined, drugged
-    update_epidem(plt, fig, ax, lines, days, args, lockdown, days, *reaction)
+    plot_h.update_epidem(days, args, lockdown, *reaction)
     track = npappend(track, nparray(args).reshape((1, 5)), axis=0)
     print(*args, file=logfile, flush=True)
-    city.pass_day()  # IT STARTS!
+    city.pass_day(plot_h)  # IT STARTS!
     while npany(city.space_contam):  # Absend from persons and places
         if nprandom.random() < MED_DISCOVERY and not vaccined:
             vaccined= True
@@ -88,8 +88,8 @@ def simulate(
         args = city.survey(simul_pop)
         track = npappend(track, nparray(args).reshape((1, 5)), axis=0)
         print(*args, file=logfile, flush=True)
-        city.pass_day()
-        update_epidem(plt, fig, ax, lines, days, args, lockdown, days, *reaction)
+        city.pass_day(plot_h)
+        plot_h.update_epidem(days, args, lockdown, *reaction)
         if intervention and lockdown == 0 and (args[2] > next_lockdown):
             next_lockdown *= lockdown_panic
             # Panic by infection Spread
@@ -106,6 +106,6 @@ def simulate(
     args = city.survey(simul_pop)
     track = npappend(track, nparray(args).reshape((1, 5)), axis=0)
     print(*args, file=logfile, flush=True)
-    update_epidem(plt, fig, ax, lines, days, args, lockdown, days, *reaction)
+    plot_h.update_epidem(days, args, lockdowns, *reaction)
     return
 
