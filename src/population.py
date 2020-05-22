@@ -201,7 +201,7 @@ class population(object):
         self.progress[indiv] = 0.000001
         self.recovered[indiv] = False
         self.susceptible[indiv] = nprandom.random() * 0.01
-        # Some unfortunate indiv still get infected again
+        # Some unfortunate indiv will still get infected again
 
         # Possibility of mutation in pathogen
         # (For Future, to simulate evolution of pathogens)
@@ -263,12 +263,12 @@ class population(object):
                 strain_persist = self.strain_types[-1].persistence
                 host_types = []
                 host_types.append((pos * (npnot(self.active[:, None])
-                                          * npnot(self.susceptible[:, None]
-                                                  < self.resist_def))).tolist())
+                                          * self.susceptible[:, None]
+                                                  > self.resist_def)).tolist())
                 host_types.append((pos * self.active[:, None]).tolist())
                 host_types.append((pos * (npnot(self.active[:, None])
                                           * (self.susceptible[:, None]
-                                             < 0.1))).tolist())
+                                             <= self.resist_def))).tolist())
                 pathn_pers = []
                 for pers in range(int(strain_persist))[::-1]:
                     pathn_pers.append(npnonzero(self.space_contam==(pers+1)))

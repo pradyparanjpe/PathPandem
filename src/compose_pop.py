@@ -51,8 +51,7 @@ def compose_homogenous(
     founder = person(parent=ordinary_immun, active=True,
                      progress=0.0001, strain=pathy)
     city = population(infrastructure=infra, p_max=max_space,
-                      serious_health=serious_health, resist_def=resist_def,
-                      vac_resist=vac_res, vac_cov=vac_cov)
+                      serious_health=serious_health, resist_def=resist_def)
     city.compose_pop(resest_immun, resist_prop)
     city.compose_pop(ordinary_immun, ordinary_prop)
     city.compose_pop(feeble, feeble_prop)
