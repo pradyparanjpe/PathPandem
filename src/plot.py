@@ -19,6 +19,7 @@
 '''Visualization'''
 
 
+from time import sleep
 from numpy import append as npappend
 from matplotlib import pyplot as plt
 from matplotlib.widgets import CheckButtons as mplCheckButtons
@@ -92,6 +93,7 @@ class plot_wrap():
             self.epidem_ax = self.ax
         self.init_epidem()
         self.plt.ion()
+        self.plt.show(block=False)
         return
 
 
@@ -182,10 +184,11 @@ class plot_wrap():
                 bgcolor += 0x3F
             bgcolor = "#" + "0" * (6 - len(hex(bgcolor)[2:])) + hex(bgcolor)[2:]
             self.epidem_ax.set_facecolor(bgcolor)
-            self.fig.canvas.draw()
+            self.mypause(0.0005)
+            # self.fig.canvas.draw()
+            # self.plt.pause(0.0005)
             self.epidem_ax.relim();
             self.epidem_ax.autoscale_view(True, True, True)
-            self.plt.pause(0.0005)
         return
 
 
@@ -201,7 +204,19 @@ class plot_wrap():
         for idx, typ in enumerate(host_scs):
             typ.set_offsets(host_types[idx])
             self.contam_dots[0][idx].set_visible(label_on[idx])
-        self.fig.canvas.draw()
-        self.plt.pause(0.0005)
+        self.mypause(0.0005)
+        # self.fig.canvas.draw()
+        # self.plt.pause(0.0005)
         return
 
+    def mypause(self, interval):
+        # Thanks to pepgma at stackoverflow
+        manager = self.plt._pylab_helpers.Gcf.get_active()
+        if manager is not None:
+            canvas = manager.canvas
+            if canvas.figure.stale:
+                canvas.draw_idle()
+                #plt.show(block=False)
+                canvas.start_event_loop(interval)
+            else:
+                sleep(interval)

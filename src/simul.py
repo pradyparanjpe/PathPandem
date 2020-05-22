@@ -106,6 +106,6 @@ def simulate(
     args = city.survey(simul_pop)
     track = npappend(track, nparray(args).reshape((1, 5)), axis=0)
     print(*args, file=logfile, flush=True)
-    plot_h.update_epidem(days, args, lockdowns, *reaction)
+    plot_h.update_epidem(days, args, lockdown, *reaction)
     return
 
