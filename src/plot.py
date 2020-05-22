@@ -220,3 +220,10 @@ class plot_wrap():
                 canvas.start_event_loop(interval)
             else:
                 sleep(interval)
+        return
+
+
+    def savefig(self, filehandle):
+        '''Save figure'''
+        self.plt.savefig(filehandle)
+        return

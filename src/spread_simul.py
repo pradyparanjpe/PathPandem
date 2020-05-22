@@ -19,6 +19,7 @@
 '''Simulate spread of an infectious agent'''
 
 
+from sys import exit as sysexit
 from pickle import load
 from cli import cli
 from population import population
@@ -40,6 +41,15 @@ if __name__ == "__main__":
 
     # INITS
     MAX_SPACE = int(pow(SIMUL_POP/POP_DENSE, 0.5))  # Sqr_mtr
+
+    if SIMUL_POP <= SEED_INF:
+        print("Total population must be less than Seed founder population, resetting...")
+    if MAX_SPACE < 2:
+        print('''Too less space to simulate
+        Increase Population size OR
+        Decrease Density of population''')
+        sysexit(1)
+
     CFR = ih_translate(cfr=CFR/2, day_per_inf=int(DAY_PER_INF*1.414))
     # Log raw survey numbers
     FNAME_BASE= int(EARLY_ACTION) * "Early_acted_"\
@@ -56,7 +66,8 @@ if __name__ == "__main__":
         seed_inf=SEED_INF, feeble_prop=FEEBLE_PROP, comorbidity=COMORBIDITY,
         resist_prop=RESIST_PROP, resistance=RESISTANCE, cfr=CFR,
         day_per_inf=DAY_PER_INF, inf_per_exp=INF_PER_EXP,
-        persistence=PERSISTENCE
+        persistence=PERSISTENCE, vac_res=VAC_RES, vac_cov=VAC_COV,
+        resist_def=(1 - RESISTANCE),
     )
     PLOT_H = plot_wrap(SPACE, PERSISTENCE, VISUALIZE)
     err = simulate(
@@ -68,12 +79,7 @@ if __name__ == "__main__":
     )
 
     # Finally, save
-    plt.savefig("%sdisease_plot.jpg"%FNAME_BASE)
+    PLOT_H.savefig("%sdisease_plot.jpg"%FNAME_BASE)
     LOGFILE.close()
-
-    try:
-        # for some reason, Win10 can't exit ;-D
-        exit()
-    except:
-        pass
+    sysexit(0)
 

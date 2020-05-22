@@ -29,15 +29,15 @@ def compose_homogenous(
         seed_inf: int=0, feeble_prop: float=0., comorbidity: float=0.,
         resist_prop: float=0., resistance: float=0., cfr: float=0.,
         day_per_inf: int=0, inf_per_exp: float=0., persistence: int=0,
+        vac_res: float=0, vac_cov: float=0, resist_def: float=0,
 ) -> tuple:
     '''A homogenous population'''
     # INITS
     max_space = int(pow(simul_pop/pop_dense, 0.5))  # Sqr_mtr
     infra *= simul_pop
-    ordinary_prop = round(
-        (1 - feeble_prop - resist_prop) * simul_pop) - seed_inf
     feeble_prop = round(feeble_prop * simul_pop)
     resist_prop = round(resist_prop * simul_pop)
+    ordinary_prop = simul_pop - feeble_prop - resist_prop- seed_inf
 
     # INIT pathogen, host-type
     pathy = pathogen(cfr=cfr, raw_cfr=True, day_per_inf=day_per_inf,
@@ -45,14 +45,16 @@ def compose_homogenous(
     ordinary_immun = person(susceptible=1, move_per_day=move_per_day,
                             rms_v=rms_v, p_max=max_space)
     feeble = person(parent=ordinary_immun, comorbidity=comorbidity)
-    resest_immun = person(parent=ordinary_immun, susceptible=(1-resistance))
+    resest_immun = person(parent=ordinary_immun, susceptible=resist_def)
 
     # Founder of infection
     founder = person(parent=ordinary_immun, active=True,
                      progress=0.0001, strain=pathy)
-    city = population(infrastructure=infra, p_max=max_space)
-    city.compose_pop(ordinary_immun, ordinary_prop)
+    city = population(infrastructure=infra, p_max=max_space,
+                      serious_health=serious_health, resist_def=resist_def,
+                      vac_resist=vac_res, vac_cov=vac_cov)
     city.compose_pop(resest_immun, resist_prop)
+    city.compose_pop(ordinary_immun, ordinary_prop)
     city.compose_pop(feeble, feeble_prop)
     city.compose_pop(founder, seed_inf)
     simul_pop = city.pop_size

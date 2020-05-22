@@ -41,16 +41,17 @@ class population(object):
     '''Population class bearing disease spread'''
     def __init__(
             self, people: list=[], infrastructure: float=0, pop_size: int=0,
-            p_max: int=10000, serious_health: float=0.3,
-            vaccine_resist: float=0, vaccine_cov: float=0,
+            p_max: int=10000, serious_health: float=0.3, resist_def: float=0,
+            vac_resist: float=0, vac_cov: float=0,
     )-> None:
         self.pop_size = pop_size  # Intermixing Population size
         self.p_max = p_max  # Geographical boundary (x)
         self.serious_health = serious_health  # Life support threshold
+        self.resist_def = resist_def # Susceptibility below means resistant
         self.strain_types: list = [None]  # To track evolution of pathogen
         self.infrastructure: float = infrastructure  # Available beds
-        self.vaccine_resist = vaccine_resist
-        self.vaccine_cov = vaccine_cov
+        self.vac_resist = vac_resist
+        self.vac_cov = vac_cov
 
         # Use fast numpy ufunc operations on arrays (may be ported to cupy)
         self.active: nparray = nparray([False] * pop_size, dtype=bool)
@@ -263,7 +264,7 @@ class population(object):
                 host_types = []
                 host_types.append((pos * (npnot(self.active[:, None])
                                           * npnot(self.susceptible[:, None]
-                                                  < 0.1))).tolist())
+                                                  < self.resist_def))).tolist())
                 host_types.append((pos * self.active[:, None]).tolist())
                 host_types.append((pos * (npnot(self.active[:, None])
                                           * (self.susceptible[:, None]
@@ -300,6 +301,11 @@ class population(object):
         # If health below threshold, life support is essential
         self.support = self.health < self.serious_health
 
+        # Following statements slow down the calculations drastically
+        # self.rms_v = (npnot(self.support) * self.rms_v) + (self.support * 0.)
+        # self.move_per_day = (npnot(self.support) * self.move_per_day)\
+        #     + (self.support * 0.)
+
         # If support is required but not available, indiv dies
         dead_idx = []
         dead_idx = npnonzero(self.support)[0].tolist()
@@ -328,8 +334,8 @@ class population(object):
 
         # Vaccination, when available, happens linearly
         self.susceptible -= nparray(
-            self.vaccine_resist * nparray(
-                nprandom.random(self.pop_size) < self.vaccine_cov, dtype=bool))
+            self.vac_resist * nparray(
+                nprandom.random(self.pop_size) < self.vac_cov, dtype=bool))
         self.susceptible = self.susceptible.clip(min=0)
         return
 

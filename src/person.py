@@ -25,7 +25,7 @@ class person(object):
     '''Person class tracking each Person'''
     def __init__(
             self, parent=None, active: bool=False, recovered: bool=False,
-            susceptible: float=1., support = False, health: float=None,
+            susceptible: float=None, support = False, health: float=None,
             comorbidity: float=0., progress: float=0., move_per_day: int=0,
             strain: int=None, home: tuple=(0, 0), p_max: int=0,
             rms_v: float=0)-> None:
