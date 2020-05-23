@@ -18,8 +18,6 @@
 # along with PathPandem.  If not, see <https://www.gnu.org/licenses/>.
 '''Load DB'''
 
-from . import __file__
-
 
 def ih_translate(cfr: float=0, day_per_inf: int=0)-> float:
     '''Convert raw cfr to Irwin Hall calculated Max limit'''
@@ -32,24 +30,17 @@ def ih_translate(cfr: float=0, day_per_inf: int=0)-> float:
         return 0
     elif cfr >= 1:
         return 0xFFFF  # A Very Large Number
+    from . import __file__
     from os import path
-    from sys import prefix
-    from site import USER_BASE
     from pickle import load
     try:
-        dbfile = path.join(USER_BASE,
-                           "PathPandem",
+        dbfile = path.join(path.dirname(__file__),
                            'reverse_cfr_database.pkl')
     except FileNotFoundError:
-        try:
-            dbfile = path.join(prefix,
-                               "PathPandem",
-                               'reverse_cfr_database.pkl')
-        except FileNotFoundError:
-            print("Could not find Irwin-Hall calculated database file,\
-            using THE INCORRECT mathematical formula", flush=True)
-            del path, prefix, USER_BASE, load
-            return 0.385 * pow(cfr, 2.2) + 0.115
+        print("Could not find Irwin-Hall calculated database file,\
+        using THE INCORRECT mathematical formula", flush=True)
+        del path, load
+        return 0.385 * pow(cfr, 2.2) + 0.115
     with open(dbfile, "rb") as dbfile_h:
         IH_DB = load(dbfile_h)
         del path, load, dbfile

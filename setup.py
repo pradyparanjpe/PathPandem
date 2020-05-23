@@ -8,7 +8,7 @@ with open("./LongDescription", 'r') as README_FILE:
 
 setup(
     name='PathPandem',
-    version='1.0.2.0',
+    version='1.0.2.1',
     description='Simulate Pandemic Pathogen Outbreak',
     license="GPLv3",
     long_description=long_description,
@@ -19,5 +19,5 @@ setup(
     packages=['PathPandem'],
     install_requires=['numpy', 'gooey', 'matplotlib'],
     scripts=['bin/PathPandem',],
-    data_files = [('PathPandem', ['PathPandem/reverse_cfr_database.pkl'])],
+    package_data={'PathPandem': ['reverse_cfr_database.pkl']},
 )
