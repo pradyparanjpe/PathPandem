@@ -1,14 +1,18 @@
+**READ THE COMPLETE FILE BEFORE INSTALLATION. AT LEAST READ THE *CAUTION* SECTION THOROUGHLY**
+
 # Installation:
+***INSTALLATION SHOULD HAPPEN LOCALLY FOR THE USER. DO NOT PROVIDE ROOT/ADMINISTRATIVE PRIVILEGES***
+
 ## Windows 10
 ### Recommended:
 Use `pip` method as described below.
 
-### Else, if you really insist on a Windows exe,
+### Else, if you really insist on a Windows EXE,
 Download [working directory](bin/PathPandem.Win10/)
 
 Run file [PathPandem.exe](bin/PathPandem.Win10/PathPandem.exe).
 
-In Windows, [this exe](bin/PathPandem.Win10/PathPandem.exe) file
+In Windows, [the executable](bin/PathPandem.Win10/PathPandem.exe) file
 cannot be copied to any another location,
 as its dependencies are packed in the same folder.
 
@@ -22,23 +26,82 @@ Use generic method
 ## Generic: From the source-code
 1. Download and unzip the git repository.
 2. Confirm pre-requisites.
-3. In Command Line/Shell, navigate to the repository folder and run `$ Python3 bin/PathPandem`
+3. In Command Line/Shell, navigate to the repository folder and run
+```
+python bin/PathPandem
+```
 
 ### Pre-requisites for running from the source-code:
-1. Python3.8 or higher
+1. Python3.6 or higher
 2. Numpy >= 1.18
 3. Matplotlib >= 3.2.1
 4. Gooey >= [1.0.3](https://github.com/chriskiehl/Gooey)
 
-*1 may be installed from official source; further, 2, 3, 4 may be installed by command `$ pip install <module>`*.
+*1 can be installed from official source;
+further, 2, 3, 4 can be installed by command `pip install <module>`*.
 
 ## pip
-$ pip install [--user] PathPandem
-$ PathPandem
+1. Install python3 from [official website](https://www.python.org/downloads/)
+2. Install PathPandem by typing in CommandPrompt/ Shell:
+```
+pip install --user PathPandem
+```
 
-*Square brackets indicate "optional".*
+3. Run by typing in CommandPrompt/ Shell:
 
-# Legend:
+```
+python -m "PathPandem"
+
+```
+
+*On Unix-like systems, the file `bin/PathPandem` is executable.*
+
+# Uninstallation
+
+### If installed by `pip`
+1. In CommandPrompt/Shell, type
+```
+pip uninstall PathPandem
+```
+2. If not needed, remove python [like any regular program]
+
+### If installed by cloning git repo:
+1. Delete repository folder
+2. If not needed, remove python [like any regular program]
+
+### If Windows 10 folder was downloaded
+1. Delete folder
+
+
+# Updates:
+
+### If installed by `pip`
+1. In CommandPrompt/Shell, type
+```
+pip install --upgrade PathPandem
+```
+
+### If installed by cloning git repo:
+1. In CommandPrompt/Shell, navigate inside the repo folder
+2. Type
+```
+git pull
+```
+
+### If Windows 10 folder was downloaded
+1. Consider the option of deleting the folder and installation via `pip` or `git`
+2. If you *still insist* on EXE, delete the previous folder and download updated folder from git repository.
+
+*Back-up files before deleting the previous version. Recurrent downloads may consume a lot of Internet-Data.*
+
+
+# Known Issues:
+1. Python2's end-of-life was 2019-12-31.
+   - If `python` means `python2` on an operating system, most commonly due to an earlier-installed `python2`, try migrating to `python3` (recommended), or if you understand what you are doing, install `python3` alongside and run all commands with explicit mention of python3: `python3`, `pip3`, etc.
+2. wxPython currently fails installation via `pip`, [at least] on Linux.
+   - Install it using a package-manager (dnf, pacman, apt[, brew, chocolate,] etc) or manually before `pip` tries to install Gooey`.
+
+# Plot Legend:
 ## Background Colour:
 ### Movements
 - Green: No restrictions on movement.
@@ -51,7 +114,7 @@ $ PathPandem
 ### Combinations
 - Grey: Red + Cyan.
 - Magenta: Red + Blue.
-- (Any other standard RGB combinations).
+- (*Any other standard RGB combinations*).
 
 # Caution:
 1. Population more than 10000 may stall the system.
