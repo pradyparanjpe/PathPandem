@@ -1,13 +1,11 @@
 ## Usage:
 ### Windows
-Download [working directory](exec/PathPandem.Win10)
-It contains files `reverse_cfr_database.pkl` and `spread_simul.exe`
-Both files must be present in the same folder all the time.
+Download [working directory](bin/PathPandem.Win10)
 
-Run file `spread_simul.exe`.
+Run file [PathPandem.exe](bin/Win10/PathPandem.exe).
 
 ### Linux / MacOS
-Run from [source-code](src/spread_simul.py)
+Run from [source-code](PathPandmem/spread_simul.py)
 
 ## Running from the source-code
 1. Confirm pre-requisites
@@ -20,6 +18,9 @@ Run from [source-code](src/spread_simul.py)
 4. Gooey >= [1.0.3](https://github.com/chriskiehl/Gooey)
 
 *1 may be installed from official source; further, 2, 3, 4 may be installed by command `pip install <module>`*.
+
+## pip
+pip install PathPandem
 
 ## Legend:
 ### Background Colour:
