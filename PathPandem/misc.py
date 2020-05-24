@@ -33,17 +33,23 @@ def ih_translate(cfr: float=0, day_per_inf: int=0)-> float:
     from . import __file__
     from os import path
     from pickle import load
+    dbfile = path.join(path.dirname(__file__),
+                       'reverse_cfr_database.pkl')
     try:
-        dbfile = path.join(path.dirname(__file__),
-                           'reverse_cfr_database.pkl')
+        with open(dbfile, "rb") as dbfile_h:
+            IH_DB = load(dbfile_h)
+            del path, load, dbfile
     except FileNotFoundError:
-        print("Could not find Irwin-Hall calculated database file,\
-        using THE INCORRECT mathematical formula", flush=True)
-        del path, load
-        return 0.385 * pow(cfr, 2.2) + 0.115
-    with open(dbfile, "rb") as dbfile_h:
-        IH_DB = load(dbfile_h)
-        del path, load, dbfile
+        try:
+            dbfile = 'reverse_cfr_database.pkl'
+            with open(dbfile, "rb") as dbfile_h:
+                IH_DB = load(dbfile_h)
+                del path, load, dbfile
+        except:
+            print("Could not find Irwin-Hall calculated database file,\
+            using THE INCORRECT mathematical formula", flush=True)
+            del path, load
+            return 0.385 * pow(cfr, 2.2) + 0.115
     lookup = IH_DB[day_per_inf]
     cfr_keys = list(sorted(lookup.keys()))
     for idx, key in enumerate(cfr_keys):

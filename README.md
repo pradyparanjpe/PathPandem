@@ -1,19 +1,19 @@
-**READ THE COMPLETE FILE BEFORE INSTALLATION. AT LEAST READ THE *CAUTION* SECTION THOROUGHLY**
+***READ THE COMPLETE FILE BEFORE INSTALLATION. AT LEAST READ THE *CAUTION* SECTION THOROUGHLY***
 
 # Installation:
-***INSTALLATION SHOULD HAPPEN LOCALLY FOR THE USER. DO NOT PROVIDE ROOT/ADMINISTRATIVE PRIVILEGES***
+***INSTALLATION SHOULD HAPPEN LOCALLY FOR THE USER. DO NOT PROVIDE ROOT/ADMINISTRATIVE PRIVILEGES (OTHER THAN PYTHON INSTALLATION)***
 
 ## Windows 10
 ### Recommended:
 Use `pip` method as described below.
 
 ### Else, if you really insist on a Windows EXE,
-Download [working directory](bin/PathPandem.Win10/)
+Download and extract git repository.
+Navigate to [working directory](bin/PathPandem.Win10/)
 
-Run file [PathPandem.exe](bin/PathPandem.Win10/PathPandem.exe).
+Run file PathPandem.exe.
 
-In Windows, [the executable](bin/PathPandem.Win10/PathPandem.exe) file
-cannot be copied to any another location,
+This executable file cannot be copied to any another location,
 as its dependencies are packed in the same folder.
 
 ## Linux
@@ -25,6 +25,10 @@ Use generic method
 
 ## Generic: From the source-code
 1. Download and unzip the git repository.
+   - Using git.
+```
+git clone https://github.com/pradyparanjpe/PathPandem
+```
 2. Confirm pre-requisites.
 3. In Command Line/Shell, navigate to the repository folder and run
 ```
@@ -42,7 +46,10 @@ further, 2, 3, 4 can be installed by command `pip install <module>`*.
 
 ## pip
 1. Install python3 from [official website](https://www.python.org/downloads/)
+   - For Windows, enable "Add to PATH environment variable" during installation.
+   - This will require Root/Administrative privileges.
 2. Install PathPandem by typing in CommandPrompt/ Shell:
+
 ```
 pip install --user PathPandem
 ```
