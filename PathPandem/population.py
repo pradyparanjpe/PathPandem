@@ -33,6 +33,7 @@ from numpy import logical_and as npand
 from numpy import logical_or as npor
 from numpy import nonzero as npnonzero
 from numpy import any as npany
+from numpy import abs as npabs
 from .pathogen import pathogen
 from .person import person
 
@@ -254,7 +255,12 @@ class population(object):
                 dtype=pos.dtype)
 
             # Can't jump beyond boundary
-            pos = pos.clip(min=0, max=self.p_max-1)
+            # So, reflect exploration
+            # pos = pos.clip(min=0, max=self.p_max-1)
+            pos = nparray(npnot(pos > (self.p_max-1)) * npabs(pos),
+                          dtype=pos.dtype)\
+                + nparray((pos > (self.p_max-1)) * (2 * (self.p_max - 1) - pos),
+                          dtype=pos.dtype)
             for indiv in range(self.pop_size):
                 # TODO: A ufunc would have been faster
                 if walk_left[indiv]:

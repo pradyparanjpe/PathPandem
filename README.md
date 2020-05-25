@@ -46,8 +46,8 @@ further, 2, 3, 4 can be installed by command `pip install <module>`*.
 
 ## pip
 1. Install python3 from [official website](https://www.python.org/downloads/)
-   - For Windows, enable "Add to PATH environment variable" during installation.
-   - This will require Root/Administrative privileges.
+   - For Windows, enable "Add to PATH environment variable" during installation. (Recommended) install from Windows Store.
+   - This may require Root/Administrative privileges.
 2. Install PathPandem by typing in CommandPrompt/ Shell:
 
 ```
@@ -127,7 +127,9 @@ git pull
 1. Population more than 10000 may stall the system.
 2. Tested only on Linux running from source-code.
 3. *True* numbers are plotted. However in reality, infection manifests symptoms after an initial lag of 1-3 days and test results appear further later by 1-2 days. Hence, graph trends need be imagined as having shifted suitably.
-4. Although Infection may appear to exhaust in small sized, limited population; in reality, due to birth of new individuals, and in a very large population, the pathogen persists around at extemely low density.
+4. Visualization is recommended only with very small population size.
+5. Although Infection may appear to exhaust in small sized, limited population; in reality, due to birth of new individuals, and in a very large population, the pathogen persists around at extemely low density.
+6. With small population size, random fluctuations become impactful. Multiple runs with same parameters are recommended.
 
 # Composition of scenario:
 - The GUI only edits the blanket population behaviour.
@@ -142,5 +144,4 @@ git pull
 # Brief epidemiological explanation:
 - Herd immunity starts reducing viral presence in community after viral steady state. i.e. plot of *Active* patients flattens. This happens when [1 - (1/R_{0})] fraction of the community becomes resistant. (Through vaccination or exposure)
 - Medicine development is fairly a rare event given the rightful stringency involved in testing.
-- With small population size, random fluctuations become impactful. Multiple runs with same parameters are recommended.
-- Visualization is recommended only with very small population size.
+
