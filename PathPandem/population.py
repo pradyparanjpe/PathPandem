@@ -176,19 +176,40 @@ class population(object):
             self - trim_idx[:trim_num]
         return
 
-    def calc_exposure(self, indiv, pos)-> None:
-        '''Get exposed or expose the space to infection'''
+    def mutate(self, in_strain):
+        '''Mutation'''
+        mutations = 1 + nprandom.random(size=3) * 0.02 - 0.01
+        # Then, use each random number in the array
+        mut_cfr = in_strain.cfr * mutations[0]
+        mut_inf_per_day = in_strain.inf_per_day * mutations[1]
+        mut_inf_per_exp = in_strain.inf_per_exp * mutations[2]
+
+        # Compose a mutated strain
+        mut_str = pathogen(parent=in_strain, cfr=mut_cfr,
+                           day_per_inf=2/mut_inf_per_day,
+                           inf_per_exp=mut_inf_per_exp,
+        )
+
+        # This strain has now entered the population
+        self.strain_types.append(mut_str)
+        # Indiv is infected by mutated strain
+        return len(self.strain_types) - 1,  mut_cfr,  mut_inf_per_day
+
+    def deposit(self, indiv, i_pos, j_pos)-> bool:
+        '''Deposit strain if infected'''
         # Deposit self's pathogen strain at point
-        i_pos, j_pos = pos[indiv].tolist()
         pathy = self.strain_types[self.strain[indiv]]
-        if pathy:  # indiv is carrying infection
-            self.space_contam[i_pos, j_pos] = (
-                self.active[indiv] * pathy.persistence)
-            self.space_dep_strain[i_pos, j_pos] = (
-                self.active[indiv] * self.strain[indiv])
-            # Can't collect any more
-            return
-        # Collect pathy
+        if not pathy:  # indiv is carrying infection
+            return False
+        self.space_contam[i_pos, j_pos] = (
+            self.active[indiv] * pathy.persistence)
+        self.space_dep_strain[i_pos, j_pos] = (
+            self.active[indiv] * self.strain[indiv])
+        # Can't collect any more
+        return True
+
+    def collect(self, indiv, i_pos, j_pos)-> None:
+        '''Collect infection'''
         in_strain = self.strain_types[
             self.space_dep_strain[i_pos, j_pos]]
         if not (in_strain and self.susceptible[indiv]):
@@ -196,45 +217,35 @@ class population(object):
         if (nprandom.random()
             > self.susceptible[indiv] * in_strain.inf_per_exp):
             return
-
-        # Get infected
-        self.active[indiv] = True
-        self.progress[indiv] = 0.000001
-        self.recovered[indiv] = False
-        self.susceptible[indiv] = nprandom.random() * 0.01
-        # Some unfortunate indiv will still get infected again
-
         # Possibility of mutation in pathogen
         # (For Future, to simulate evolution of pathogens)
         if nprandom.random() < 0.0001: # Rarely, mutate
             # Motion and probability of mutation arbitrarily chosen
             # (Biological cumulative mutation rates are 10^-6to-7)
             # Cleaner to generate a numpy random array
-            mutations = 1 + nprandom.random(size=3) * 0.02 - 0.01
-            # Then, use each random number in the array
-            mut_cfr = in_strain.cfr * mutations[0]
-            mut_inf_per_day = in_strain.inf_per_day * mutations[1]
-            mut_inf_per_exp = in_strain.inf_per_exp * mutations[2]
-
-            # Compose a mutated strain
-            mut_str = pathogen(parent=in_strain, cfr=mut_cfr,
-                               day_per_inf=2/mut_inf_per_day,
-                               inf_per_exp=mut_inf_per_exp,
-            )
-
-            # This strain has now entered the population
-            self.strain_types.append(mut_str)
-
-            # Indiv is infected by mutated strain
-            self.strain[indiv] = len(self.strain_types) - 1
-            self.cfr[indiv] = mut_cfr
-            self.inf_per_day[indiv] = mut_inf_per_day
+            pathy_attr = self.mutate(in_strain)
         else:
-
             # Indiv is infected by old (unmutated strain)
-            self.strain[indiv] = self.strain_types.index(in_strain)
-            self.cfr[indiv] = in_strain.cfr
-            self.inf_per_day[indiv] = in_strain.inf_per_day
+            pathy_attr = (self.strain_types.index(in_strain),
+                          in_strain.cfr, in_strain.inf_per_day)
+        # Get infected
+        self.active[indiv] = True
+        self.progress[indiv] = 0.000001
+        self.recovered[indiv] = False
+        # Some unfortunate indiv will still get infected again
+        self.susceptible[indiv] = nprandom.random() * 0.01
+        self.strain[indiv], self.cfr[indiv], self.inf_per_day[indiv] =\
+            pathy_attr
+        return
+
+    def calc_exposure(self, indiv, pos)-> None:
+        '''Get exposed or expose the space-cell to infection'''
+        # Where is indiv standing?
+        i_pos, j_pos = pos[indiv].tolist()
+        if self.deposit(indiv, i_pos, j_pos):
+            return
+        # Collect pathy
+        self.collect(indiv, i_pos, j_pos)
         return
 
 
@@ -250,8 +261,8 @@ class population(object):
             # All randomly move an edge-length
             pos += nparray(
                 npround((nprandom.random(size=pos.shape) * 2 - 1)
-                        * nparray((self.rms_v, self.rms_v)).T)
-                * nparray((walk_left, walk_left), dtype=bool).T,
+                        * self.rms_v.T[:, None])
+                * (walk_left != 0).T[:, None],
                 dtype=pos.dtype)
 
             # Can't jump beyond boundary
@@ -262,7 +273,7 @@ class population(object):
                 + nparray((pos > (self.p_max-1)) * (2 * (self.p_max - 1) - pos),
                           dtype=pos.dtype)
             for indiv in range(self.pop_size):
-                # TODO: A ufunc would have been faster
+                # TODO: A ufunc or async map would have been faster
                 if walk_left[indiv]:
                     self.calc_exposure(indiv, pos)
             if plot_h.contam_dots:
@@ -307,13 +318,15 @@ class population(object):
         # If health below threshold, life support is essential
         self.support = self.health < self.serious_health
 
-        # Following statements slow down the calculations drastically
-        # self.rms_v = (npnot(self.support) * self.rms_v) + (self.support * 0.)
-        # self.move_per_day = (npnot(self.support) * self.move_per_day)\
-        #     + (self.support * 0.)
+        # Serious patients do not move
+        # self.rms_v = nparray(npnot(self.support) * self.rms_v
+        #                      + self.support * 0, dtype=self.rms_v.dtype)
+        # self.move_per_day = nparray(npnot(self.support) * self.move_per_day
+        #                            + self.support * 0,
+        #                            dtype=self.move_per_day.dtype)
 
-        # If support is required but not available, indiv dies
         dead_idx = []
+        # If support is required but not available, indiv dies
         dead_idx = npnonzero(self.support)[0].tolist()
         shuffle(dead_idx)
         dead_idx = dead_idx[int(self.infrastructure):]
@@ -335,7 +348,7 @@ class population(object):
         )
         # Infrastructure may grow, but linearly and very slow
         self.infrastructure = max(min(
-            self.infrastructure + 0.2, self.active.sum()/20),
+            self.infrastructure + 0.2, self.active.sum()/5),
                                   self.infrastructure)
 
         # Vaccination, when available, happens linearly
@@ -356,6 +369,7 @@ class population(object):
         num_cases: int = num_active + num_recovered + dead
         num_serious: int = nparray(self.support).sum()
         return num_active, num_recovered, num_cases, num_serious, dead
+
     def pass_day(self, plot_h=None)-> None:
         '''progress all population and infections'''
         self.random_walk(plot_h=plot_h)  # Macro-scale population

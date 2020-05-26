@@ -34,26 +34,38 @@ def simulate(
         plot_h=None
 ) -> tuple:
     '''Recursive simulation of each day'''
-    vaccined: bool = False
-    drugged: bool = False
+    vaccine_discovery_date = 0
+    drug_discovery_date = 0
+    while not vaccine_discovery_date:
+        for idx, k in enumerate(nprandom.random(size=(int(5/MED_DISCOVERY)))):
+            if k < MED_DISCOVERY:
+                vaccine_discovery_date = idx
+    while not drug_discovery_date:
+        for idx, k in enumerate(nprandom.random(size=(int(5/MED_DISCOVERY)))):
+            if k < MED_DISCOVERY:
+                drug_discovery_date = idx
     lockdown = 0
     next_lockdown = seed_inf * lockdown_panic
     # Track infection trends
     track: nparray = nparray([[]] * 0, dtype=npint64).reshape((0, 5))
     days = 0
     args = city.survey(simul_pop)
-    reaction = zero_lock, early_action, intervention, vaccined, drugged
-    plot_h.update_epidem(days, args, lockdown, *reaction)
+    newsboard = (
+        "Total Population %d" % city.pop_size,
+        "ICUs Available: %d/%d"
+        % (city.infrastructure - args[3], city.infrastructure),
+    )
+    reaction = (zero_lock, early_action, intervention,
+                days > vaccine_discovery_date, days > drug_discovery_date)
+    plot_h.update_epidem(days, args, newsboard, lockdown, *reaction)
     track = npappend(track, nparray(args).reshape((1, 5)), axis=0)
     print(*args, file=logfile, flush=True)
     city.pass_day(plot_h)  # IT STARTS!
-    while npany(city.space_contam):  # Absend from persons and places
-        if nprandom.random() < MED_DISCOVERY and not vaccined:
-            vaccined= True
+    while npany(city.space_contam):  # Absent from persons and places
+        if days == vaccine_discovery_date:
             city.vaccine_resist = vac_res
             city.vaccine_cov = vac_cov
-        if nprandom.random() < MED_DISCOVERY and not drugged:
-            drugged = True
+        if days == drug_discovery_date:
             for idx, pathy in enumerate(city.strain_types):
                 if pathy is not None:
                     city.strain_types[idx].inf_per_day /= med_recov
@@ -71,10 +83,21 @@ def simulate(
                 city.move_per_day *= contact_restrict
         days += 1
         args = city.survey(simul_pop)
+        newsboard = (
+            "Total Population %d" % city.pop_size,
+            "ICUs Available: %d/%d"
+            % (city.infrastructure - args[3], city.infrastructure),
+        )
+        if days > drug_discovery_date:
+            newsboard.append("Drug Discovered")
+        if days > vaccine_discovery_date:
+            newsboard.append("Vaccine Discovered")
         track = npappend(track, nparray(args).reshape((1, 5)), axis=0)
         print(*args, file=logfile, flush=True)
         city.pass_day(plot_h)
-        plot_h.update_epidem(days, args, lockdown, *reaction)
+        reaction = (zero_lock, early_action, intervention,
+                    days > vaccine_discovery_date, days > drug_discovery_date)
+        plot_h.update_epidem(days, args, newsboard, lockdown, *reaction)
         if intervention and lockdown == 0 and (args[2] > next_lockdown):
             next_lockdown *= lockdown_panic
             # Panic by infection Spread
@@ -89,8 +112,19 @@ def simulate(
             city.move_per_day *= contact_restrict
             lockdown = 0
     args = city.survey(simul_pop)
+    newsboard = (
+        "Total Population %d" % city.pop_size,
+        "ICUs Available: %d/%d"
+        % (city.infrastructure - args[3], city.infrastructure),
+    )
+    if days > drug_discovery_date:
+        newsboard.append("Drug Discovered")
+    if days > vaccine_discovery_date:
+        newsboard.append("Vaccine Discovered")
     track = npappend(track, nparray(args).reshape((1, 5)), axis=0)
     print(*args, file=logfile, flush=True)
-    plot_h.update_epidem(days, args, lockdown, *reaction)
+    reaction = (zero_lock, early_action, intervention,
+                days > vaccine_discovery_date, days > drug_discovery_date)
+    plot_h.update_epidem(days, args, newsboard, lockdown, *reaction)
     return
 

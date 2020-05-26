@@ -8,7 +8,7 @@ with open("./LongDescription", 'r') as README_FILE:
 
 setup(
     name='PathPandem',
-    version='1.0.2.2',
+    version='1.0.2.3',
     description='Simulate Pandemic Pathogen Outbreak',
     license="GPLv3",
     long_description=long_description,

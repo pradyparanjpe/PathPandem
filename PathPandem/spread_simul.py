@@ -68,7 +68,7 @@ def main():
         persistence=PERSISTENCE, vac_res=VAC_RES, vac_cov=VAC_COV,
         resist_def=(1 - RESISTANCE),
     )
-    PLOT_H = plot_wrap(SPACE, PERSISTENCE, VISUALIZE)
+    PLOT_H = plot_wrap(SPACE, PERSISTENCE, SIMUL_POP, VISUALIZE)
     err = simulate(
         city=CITY, logfile=LOGFILE, simul_pop=SIMUL_POP, med_recov=MED_RECOV, med_eff=MED_EFF,
         vac_res=VAC_RES, vac_cov=VAC_COV, movement_restrict=MOVEMENT_RESTRICT,

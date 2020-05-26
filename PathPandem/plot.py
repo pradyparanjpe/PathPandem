@@ -27,7 +27,7 @@ from matplotlib.widgets import CheckButtons as mplCheckButtons
 
 class plot_wrap():
     '''Share variables between axes'''
-    def __init__(self, space, persistence, visualize=False)-> None:
+    def __init__(self, space, persistence, pop_size, visualize=False)-> None:
         '''Initiate matplot'''
         self.linetypes = {"Active": "#7F7FFF",
                          "Recovered": "#7FFF7F",
@@ -39,6 +39,7 @@ class plot_wrap():
                          "Infected": "#0000FFFF",
                          "Resistant": "#3FFF3FFF"}
         self.plt = plt
+        self.pop_size = pop_size
         self.fig, self.ax = self.plt.subplots(nrows=1, ncols=(visualize + 1))
         self.plt.subplots_adjust(left=0.2)
         self.fig.set_facecolor("#CFCFCFFF")
@@ -99,6 +100,7 @@ class plot_wrap():
 
     def init_epidem(self):
         '''Initiate matplot'''
+        self.news_text = []
         self.lines = []
         for names in self.linetypes:
             line_n, = self.epidem_ax.plot(
@@ -150,10 +152,10 @@ class plot_wrap():
         return
 
 
-    def update_epidem(self, days: int, updates: tuple, lockdown: int=0,
-                      zero_lock: bool=False, early_action: bool=False,
-                      intervention: bool=False, vaccined: bool=False,
-                      drugged: bool=False) -> None:
+    def update_epidem(self, days: int, updates: tuple, newsboard: list,
+                      lockdown: int=0, zero_lock: bool=False,
+                      early_action: bool=False, intervention: bool=False,
+                      vaccined: bool=False, drugged: bool=False) -> None:
         '''Update'''
         if len(updates) == 5:
             for idx, val in enumerate(updates):
@@ -170,6 +172,18 @@ class plot_wrap():
             x = npappend(x, days)
             y = npappend(y, new_cases)
             self.lines[5].set_data((x, y))
+            for idx, news in enumerate(newsboard):
+                if idx < len(self.news_text):
+                    self.news_text[idx].set_text(news)
+                else:
+                    self.news_text.append(self.epidem_ax.text(
+                        .05,.95 - idx * 0.05,
+                        news,
+                        horizontalalignment='left',
+                        transform=self.epidem_ax.transAxes,
+                        fontweight='bold',
+                        color="#BF7F7FFF"
+                    ))
             bgcolor = 0
             label_on = self.track_cb.get_status()
             for idx in range(len(self.lines)):
@@ -185,8 +199,6 @@ class plot_wrap():
             bgcolor = "#" + "0" * (6 - len(hex(bgcolor)[2:])) + hex(bgcolor)[2:]
             self.epidem_ax.set_facecolor(bgcolor)
             self.mypause(0.0005)
-            # self.fig.canvas.draw()
-            # self.plt.pause(0.0005)
             self.epidem_ax.relim();
             self.epidem_ax.autoscale_view(True, True, True)
         return
@@ -205,8 +217,6 @@ class plot_wrap():
             typ.set_offsets(host_types[idx])
             self.contam_dots[0][idx].set_visible(label_on[idx])
         self.mypause(0.0005)
-        # self.fig.canvas.draw()
-        # self.plt.pause(0.0005)
         return
 
     def mypause(self, interval):
@@ -216,7 +226,6 @@ class plot_wrap():
             canvas = manager.canvas
             if canvas.figure.stale:
                 canvas.draw_idle()
-                #plt.show(block=False)
                 canvas.start_event_loop(interval)
             else:
                 sleep(interval)

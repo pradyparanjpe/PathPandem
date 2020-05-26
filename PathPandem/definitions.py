@@ -19,6 +19,6 @@
 '''Simulate spread of an infectious agent'''
 
 
-MED_DISCOVERY = 1/(365.25 * 1.5)
+MED_DISCOVERY = 1/365.25
 
 
